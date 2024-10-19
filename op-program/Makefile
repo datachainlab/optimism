@@ -21,7 +21,8 @@ op-program: \
 	op-program-client-mips
 
 op-program-host:
-	env GO111MODULE=on GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) CGO_ENABLED=0 go build -v -ldflags "$(LDFLAGSSTRING)" -o ./bin/op-program ./host/cmd/main.go
+  # CGO is required to use sqlite3
+	env GO111MODULE=on GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) CGO_ENABLED=1 go build -v -ldflags "$(LDFLAGSSTRING)" -o ./bin/op-program ./host/cmd/main.go
 
 op-program-client:
 	env GO111MODULE=on GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -ldflags "$(PC_LDFLAGSSTRING)" -o ./bin/op-program-client ./client/cmd/main.go

@@ -94,7 +94,7 @@ var (
 	RunInfoAtFlag = &cli.GenericFlag{
 		Name:     "info-at",
 		Usage:    "step pattern to print info at: " + patternHelp,
-		Value:    MustStepMatcherFlag("%100000"),
+		Value:    MustStepMatcherFlag("%100000000"),
 		Required: false,
 	}
 	RunPProfCPU = &cli.BoolFlag{
@@ -339,9 +339,10 @@ func Run(ctx *cli.Context) error {
 		args = []string{""}
 	}
 
-	poOut := Logger(os.Stdout, log.LevelInfo).With("module", "host")
-	poErr := Logger(os.Stderr, log.LevelInfo).With("module", "host")
-	po, err := NewProcessPreimageOracle(args[0], args[1:], poOut, poErr)
+	//poOut := Logger(os.Stdout, log.LevelInfo).With("module", "host")
+	//poErr := Logger(os.Stderr, log.LevelInfo).With("module", "host")
+	// po, err := NewProcessPreimageOracle(args[0], args[1:], poOut, poErr)
+	po, err := NewMemoryPreimageOracle("temp/compat/sepolia-fjord/kvstore.db") //NewProcessPreimageOracle(args[0], args[1:], poOut, poErr)
 	if err != nil {
 		return fmt.Errorf("failed to create pre-image oracle process: %w", err)
 	}
@@ -413,9 +414,9 @@ func Run(ctx *cli.Context) error {
 	snapshotFmt := ctx.String(RunSnapshotFmtFlag.Name)
 
 	stepFn := vm.Step
-	if po.cmd != nil {
-		stepFn = Guard(po.cmd.ProcessState, stepFn)
-	}
+	//	if po.cmd != nil {
+	//		stepFn = Guard(po.cmd.ProcessState, stepFn)
+	//	}
 
 	start := time.Now()
 

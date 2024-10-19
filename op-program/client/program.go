@@ -75,3 +75,40 @@ func runDerivation(logger log.Logger, cfg *rollup.Config, l2Cfg *params.ChainCon
 	}
 	return claim.ValidateClaim(logger, l2ClaimBlockNum, eth.Bytes32(l2Claim), l2Source)
 }
+
+func Local(logger log.Logger, path string) {
+	log.Info("Starting fault proof program client for local ")
+	if err := runProgramLocal(logger, path); errors.Is(err, claim.ErrClaimNotValid) {
+		log.Error("Claim is invalid", "err", err)
+		os.Exit(1)
+	} else if err != nil {
+		log.Error("Program failed", "err", err)
+		os.Exit(2)
+	} else {
+		log.Info("Claim successfully verified")
+		os.Exit(0)
+	}
+}
+
+func runProgramLocal(logger log.Logger, path string) error {
+	pClient, err := NewMemoryPreimageOracle(path) //preimage.NewOracleClient(preimageOracle)
+	if err != nil {
+		return err
+	}
+	l1PreimageOracle := l1.NewCachingOracle(l1.NewPreimageOracle(pClient, pClient))
+	l2PreimageOracle := l2.NewCachingOracle(l2.NewPreimageOracle(pClient, pClient))
+
+	bootInfo := NewBootstrapClient(pClient).BootInfo()
+	logger.Info("Program Bootstrapped", "bootInfo", bootInfo)
+	return runDerivation(
+		logger,
+		bootInfo.RollupConfig,
+		bootInfo.L2ChainConfig,
+		bootInfo.L1Head,
+		bootInfo.L2OutputRoot,
+		bootInfo.L2Claim,
+		bootInfo.L2ClaimBlockNumber,
+		l1PreimageOracle,
+		l2PreimageOracle,
+	)
+}
