@@ -16,6 +16,7 @@ exec /usr/local/bin/lighthouse \
   --http-allow-origin='*' \
   --listen-address=0.0.0.0 \
   --port=9000 \
+  --light-client-server \
   --target-peers=0 \
   --testnet-dir=/genesis \
   --execution-endpoint="${LH_EXECUTION_ENDPOINT}" \
